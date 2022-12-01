@@ -12,13 +12,14 @@ PATH = "./MultiCoNER_2_train_dev/train_dev"
 LANG = ["en"]
 #LANG = ["bn","de","en","es","fa","fr","hi","it","pt","sv","uk","zh"]
 MODE = ["train", "dev"]
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
-MASKED_LM = "google/bigbird-roberta-base"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
+#MASKED_LM = "google/bigbird-roberta-base"
+MASKED_LM = "xlm-roberta-base"
 
 BASE_TEMPLATE = "[MASK] is the [ENTITY] ?"
 
 complete_dataset = True
-automatic = False
+automatic = True
 
 def process_phrases(lines):
 
@@ -62,7 +63,8 @@ def create_templates():
 
     if automatic:
         tokenizer = AutoTokenizer.from_pretrained(MASKED_LM)
-        model = AutoModelForPreTraining.from_pretrained(MASKED_LM, attention_type="original_full") #AutoModelForMaskedLM.from_pretrained(MASKED_LM)
+        #model = AutoModelForPreTraining.from_pretrained(MASKED_LM, attention_type="original_full")
+        model = AutoModelForMaskedLM.from_pretrained(MASKED_LM)
 
         device = torch.device("cuda")
         model.to(device)
@@ -77,12 +79,13 @@ def create_templates():
 
             template = BASE_TEMPLATE.replace("[ENTITY]", text_entity).replace("[MASK]", mask_token)
             templates.append(template)
-        tokenized_templates = tokenizer(templates, return_tensors='pt', max_length=64, padding="max_length")
+        tokenized_templates = tokenizer(templates, return_tensors='pt', max_length=128, padding="max_length")
         tokenized_templates = tokenized_templates.to(device)
 
         mask_token_index = torch.where(tokenized_templates.data["input_ids"] == tokenizer.mask_token_id)[1]
 
-        output = model(**tokenized_templates).prediction_logits
+        #output = model(**tokenized_templates).prediction_logits
+        output = model(**tokenized_templates).logits
         mask_token_logits = []
 
         for _ in range(len(templates)):

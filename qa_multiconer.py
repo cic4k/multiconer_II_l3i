@@ -77,6 +77,12 @@ def parse_arguments():
                         type=str,
                         help="""Operation mode""")
 
+    parser.add_argument("-x", "--suffix",
+                        dest="suffix",
+                        default="",
+                        type=str,
+                        help="""Suffix to output names""")
+
     return parser.parse_args()
 
 def prepare_train_features(samples, lm_tokenizer, max_length, doc_stride):
@@ -415,19 +421,19 @@ def train_model(dataset, lm_tokenizer, args):
     model = AutoModelForQuestionAnswering.from_pretrained(args.model)
 
     model_name = os.path.split(args.model)[-1]
-    out_model_name = os.path.join("./models", f"{model_name}-finetuned-multiconer2comp")
+    out_model_name = os.path.join("./models", f"{model_name}-finetuned-multiconer2comp_{args.suffix}")
 
     train_args = TrainingArguments(
         out_model_name,
+        save_strategy="epoch",
+        logging_strategy="epoch",
         evaluation_strategy="epoch",
         learning_rate=2e-5,
         per_device_train_batch_size=args.batch_size_train,
-        per_device_eval_batch_size=args.batch_size_train,
+        per_device_eval_batch_size=args.batch_size_test,
         num_train_epochs=args.epochs,
         weight_decay=0.01,
-        push_to_hub=False,
-        save_steps=2000,
-        logging_steps=2000
+        push_to_hub=False
     )
 
     data_collator = default_data_collator
@@ -462,10 +468,7 @@ def test_model(dataset, lm_tokenizer, args):
 
     trainer_args = TrainingArguments(
         output_dir="./tmp_trainer",
-        learning_rate=2e-5,
-        per_device_train_batch_size=args.batch_size_test,
         per_device_eval_batch_size=args.batch_size_test,
-        weight_decay=0.01,
         push_to_hub=False,
     )
 
