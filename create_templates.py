@@ -1,6 +1,6 @@
 import itertools
 from transformers import AutoTokenizer
-from transformers import AutoModelForPreTraining, AutoModelForMaskedLM
+from transformers import AutoModelForMaskedLM
 import os
 import torch
 import csv
@@ -13,8 +13,8 @@ LANG = ["en"]
 #LANG = ["bn","de","en","es","fa","fr","hi","it","pt","sv","uk","zh"]
 MODE = ["train", "dev"]
 os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
-#MASKED_LM = "google/bigbird-roberta-base"
-MASKED_LM = "xlm-roberta-base"
+MASKED_LM = "google/bigbird-roberta-base"
+#MASKED_LM = "xlm-roberta-base"
 
 BASE_TEMPLATE = "[MASK] is the [ENTITY] ?"
 
@@ -63,8 +63,8 @@ def create_templates():
 
     if automatic:
         tokenizer = AutoTokenizer.from_pretrained(MASKED_LM)
-        #model = AutoModelForPreTraining.from_pretrained(MASKED_LM, attention_type="original_full")
-        model = AutoModelForMaskedLM.from_pretrained(MASKED_LM)
+        model = AutoModelForMaskedLM.from_pretrained(MASKED_LM, attention_type="original_full")
+        #model = AutoModelForMaskedLM.from_pretrained(MASKED_LM)
 
         device = torch.device("cuda")
         model.to(device)
@@ -84,7 +84,6 @@ def create_templates():
 
         mask_token_index = torch.where(tokenized_templates.data["input_ids"] == tokenizer.mask_token_id)[1]
 
-        #output = model(**tokenized_templates).prediction_logits
         output = model(**tokenized_templates).logits
         mask_token_logits = []
 

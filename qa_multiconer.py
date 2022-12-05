@@ -11,7 +11,7 @@ import collections
 from pprint import pprint
 
 os.environ["WANDB_DISABLED"] = "true"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2,1,3"
 
 def parse_arguments():
 
@@ -98,16 +98,26 @@ def prepare_train_features(samples, lm_tokenizer, max_length, doc_stride):
         stride=doc_stride,
         return_overflowing_tokens=True,
         return_offsets_mapping=True,
-        padding="max_length",
+        padding="max_length"
     )
 
     overflow_samples_mapping = tokenized_samples.pop("overflow_to_sample_mapping")
     offsets_mapping = tokenized_samples.pop("offset_mapping") #offset_mapping -> the offset of each token in the input string
 
+    if "bigbird" in lm_tokenizer.name_or_path:
+        samples_ids2tokens = [lm_tokenizer.convert_ids_to_tokens(_) for _ in tokenized_samples["input_ids"]]
+
+
     tokenized_samples["start_positions"] = []
     tokenized_samples["end_positions"] = []
 
     for i, offsets in enumerate(offsets_mapping):
+
+        if "bigbird" in lm_tokenizer.name_or_path:
+            sample_ids2tokens = samples_ids2tokens[i]
+            for j, token in enumerate(sample_ids2tokens):
+                if token[0] == "▁" and offsets[j][0] != 0:
+                    offsets[j] = (offsets[j][0]+1, offsets[j][1])
 
         # Impossible answers will be labeled with the index of the CLS token
         sample_input_ids = tokenized_samples["input_ids"][i]
@@ -178,10 +188,21 @@ def prepare_test_features(samples, lm_tokenizer, max_length, doc_stride):
 
     overflow_samples_mapping = tokenized_samples.pop("overflow_to_sample_mapping")
 
+    if "bigbird" in lm_tokenizer.name_or_path:
+        samples_ids2tokens = [lm_tokenizer.convert_ids_to_tokens(_) for _ in tokenized_samples["input_ids"]]
+
     # We keep the sample_id that gave us this feature and we will store the offset mappings.
     tokenized_samples["sample_id"] = []
 
     for i in range(len(tokenized_samples["input_ids"])):
+
+        if "bigbird" in lm_tokenizer.name_or_path:
+            sample_ids2tokens = samples_ids2tokens[i]
+            for j, token in enumerate(sample_ids2tokens):
+                if token[0] == "▁" and tokenized_samples["offset_mapping"][i][j][0] != 0:
+                    tokenized_samples["offset_mapping"][i][j] = (tokenized_samples["offset_mapping"][i][j][0]+1,
+                                                                 tokenized_samples["offset_mapping"][i][j][1])
+
         # Grab the sequence corresponding to that example (to know what is the context and what is the question).
         sequence_ids = tokenized_samples.sequence_ids(i)
         context_index = 1 if pad_on_right else 0
@@ -416,9 +437,10 @@ def train_model(dataset, lm_tokenizer, args):
                                                "doc_stride": args.doc_stride}
                                     )
 
-
-    #model = AutoModelForQuestionAnswering.from_pretrained(args.model, attention_type="original_full")
-    model = AutoModelForQuestionAnswering.from_pretrained(args.model)
+    if "bigbird" in lm_tokenizer.name_or_path:
+        model = AutoModelForQuestionAnswering.from_pretrained(args.model, attention_type="original_full")
+    else:
+        model = AutoModelForQuestionAnswering.from_pretrained(args.model)
 
     model_name = os.path.split(args.model)[-1]
     out_model_name = os.path.join("./models", f"{model_name}-finetuned-multiconer2comp_{args.suffix}")
@@ -464,7 +486,10 @@ def test_model(dataset, lm_tokenizer, args):
                                                                    "doc_stride": args.doc_stride}
                                                         )
 
-    model = AutoModelForQuestionAnswering.from_pretrained(args.model)
+    if "bigbird" in lm_tokenizer.name_or_path:
+        model = AutoModelForQuestionAnswering.from_pretrained(args.model, attention_type="original_full")
+    else:
+        model = AutoModelForQuestionAnswering.from_pretrained(args.model)
 
     trainer_args = TrainingArguments(
         output_dir="./tmp_trainer",
