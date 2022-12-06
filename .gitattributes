@@ -1,1 +1,12 @@
-*.tsv filter=lfs diff=lfs merge=lfs -text
+MultiCoNER_2_train_dev/train_dev/manualv2/en-dev_comp.tsv filter=lfs diff=lfs merge=lfs -text
+MultiCoNER_2_train_dev/train_dev/manualv2/en-dev.tsv filter=lfs diff=lfs merge=lfs -text
+MultiCoNER_2_train_dev/train_dev/manualv2/en-train_comp.tsv filter=lfs diff=lfs merge=lfs -text
+MultiCoNER_2_train_dev/train_dev/manualv2/en-train.tsv filter=lfs diff=lfs merge=lfs -text
+MultiCoNER_2_train_dev/train_dev/xlm-roberta-basev2/en-dev.tsv filter=lfs diff=lfs merge=lfs -text
+MultiCoNER_2_train_dev/train_dev/xlm-roberta-basev2/en-train_comp.tsv filter=lfs diff=lfs merge=lfs -text
+MultiCoNER_2_train_dev/train_dev/xlm-roberta-basev2/en-train.tsv filter=lfs diff=lfs merge=lfs -text
+MultiCoNER_2_train_dev/train_dev/xlm-roberta-basev2/en-dev_comp.tsv filter=lfs diff=lfs merge=lfs -text
+MultiCoNER_2_train_dev/train_dev/bigbird-roberta-basev2/en-dev_comp.tsv filter=lfs diff=lfs merge=lfs -text
+MultiCoNER_2_train_dev/train_dev/bigbird-roberta-basev2/en-dev.tsv filter=lfs diff=lfs merge=lfs -text
+MultiCoNER_2_train_dev/train_dev/bigbird-roberta-basev2/en-train_comp.tsv filter=lfs diff=lfs merge=lfs -text
+MultiCoNER_2_train_dev/train_dev/bigbird-roberta-basev2/en-train.tsv filter=lfs diff=lfs merge=lfs -text
