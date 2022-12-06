@@ -11,7 +11,7 @@ import collections
 from pprint import pprint
 
 os.environ["WANDB_DISABLED"] = "true"
-os.environ["CUDA_VISIBLE_DEVICES"] = "2,1,3"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "2,1,3"
 
 def parse_arguments():
 
