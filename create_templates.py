@@ -8,11 +8,12 @@ import copy
 from utils import NES
 from tqdm import tqdm
 
-PATH = "./MultiCoNER_2_train_dev/train_dev"
+PATH = "./MultiCoNER_2_data/train_dev_test"
 LANG = ["en"]
 #LANG = ["bn","de","en","es","fa","fr","hi","it","pt","sv","uk","zh"]
-MODE = ["train", "dev"]
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
+#MODE = ["train", "dev"]
+MODE = ["test"]
+os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
 MASKED_LM = "google/bigbird-roberta-base"
 #MASKED_LM = "xlm-roberta-base"
 
@@ -62,6 +63,7 @@ def create_templates():
     templates_keys = list()
 
     if automatic:
+        print(f"Devices: {torch.cuda.device_count()}")
         tokenizer = AutoTokenizer.from_pretrained(MASKED_LM)
         model = AutoModelForMaskedLM.from_pretrained(MASKED_LM, attention_type="original_full")
         #model = AutoModelForMaskedLM.from_pretrained(MASKED_LM)
