@@ -60,7 +60,11 @@ def load_multiconer_dataset(dataset_path, lang):
     file_path = os.path.join(dataset_path, f"{lang}-dev_comp.tsv")
     dataset_dev = Dataset.from_pandas(pandas.read_csv(file_path, sep="\t", header=0))
 
+    file_path = os.path.join(dataset_path, f"{lang}-test_comp.tsv")
+    dataset_test = Dataset.from_pandas(pandas.read_csv(file_path, sep="\t", header=0))
+
     return DatasetDict({
         "train": dataset_train,
-        "development": dataset_dev
+        "development": dataset_dev,
+        "test": dataset_test
     })

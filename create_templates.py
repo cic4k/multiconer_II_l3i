@@ -31,12 +31,16 @@ def process_phrases(lines):
     phrase_text = []
     phrase_labels = []
 
-    for line in lines:
+    for line in tqdm(lines):
         fields = line.split()
         if "# id " in line:
-            phrase_id, domain = line.split("\t")
-            phrase_id = phrase_id.split(" ")[-1]
-            domain = domain.split("=")[-1].replace("\n", "")
+            if "domain=" in line:
+                phrase_id, domain = line.split("\t")
+                phrase_id = phrase_id.split(" ")[-1]
+                domain = domain.split("=")[-1].replace("\n", "")
+            else:
+                phrase_id = line.split(" ")[-1].replace("\n","")
+                domain = "test"
         elif len(fields) > 2:
             word, label = fields[0], fields[-1]
             phrase_text.append(word)
@@ -111,7 +115,7 @@ def create_templates():
 
 def build_questions(phrases, complete_dataset=False):
 
-    for phrase in phrases:
+    for phrase in tqdm(phrases):
         entities_span = list()
         ent_start = ent_end = None
         for _, label in enumerate(phrase["phrase_labels"]):
@@ -121,14 +125,14 @@ def build_questions(phrases, complete_dataset=False):
                 ent_start = ent_end = _
             elif label.startswith("I"):
                 ent_end = _
-            elif label.startswith("O") and ent_start is not None:
+            elif (label.startswith("O") or label.startswith("_"))  and ent_start is not None:
                 entities_span.append([ent_start, ent_end+1])
                 ent_start = ent_end = None
             if _ == len(phrase["phrase_labels"])-1 and ent_start is not None:
                 entities_span.append([ent_start, ent_end+1])
         phrase["entities_span"] = entities_span
 
-    for phrase in phrases:
+    for phrase in tqdm(phrases):
         questions = list()
         answers = list()
         entities_type = list()
@@ -196,6 +200,7 @@ def main():
 
     combinations = [_ for _ in itertools.product(*[LANG, MODE])]
 
+    """
     for _lang, _mode in combinations:
         input_file = os.path.join(PATH, _lang + '-' + _mode + '.conll')
         with open(input_file, 'r') as f:
@@ -205,7 +210,7 @@ def main():
         build_questions(phrases)
 
         write_tsv(phrases, input_file.replace(".conll", ".tsv"))
-
+    """
     if complete_dataset:
         for _lang, _mode in combinations:
             input_file = os.path.join(PATH, _lang + '-' + _mode + '.conll')

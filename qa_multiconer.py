@@ -20,7 +20,7 @@ def parse_arguments():
     #QA dataset params
     parser.add_argument("-p", "--dataset_path",
                         dest="dataset_path",
-                        default="./MultiCoNER_2_train_dev/train_dev/",
+                        default="./MultiCoNER_2_data/train_dev_test/",
                         type=str,
                         help="""QA dataset folder""")
 
@@ -478,9 +478,9 @@ def train_model(dataset, lm_tokenizer, args):
 
 def test_model(dataset, lm_tokenizer, args):
 
-    tokenized_test_dataset = dataset["development"].map(prepare_test_features,
+    tokenized_test_dataset = dataset["test"].map(prepare_test_features,
                                                         batched=True,
-                                                        remove_columns=dataset["development"].column_names,
+                                                        remove_columns=dataset["test"].column_names,
                                                         fn_kwargs={"lm_tokenizer": lm_tokenizer,
                                                                    "max_length": args.max_length,
                                                                    "doc_stride": args.doc_stride}
@@ -508,7 +508,7 @@ def test_model(dataset, lm_tokenizer, args):
     )
     raw_predictions = trainer.predict(tokenized_test_dataset)
 
-    predictions = postprocess_qa_predictions(dataset["development"],
+    predictions = postprocess_qa_predictions(dataset["test"],
                                              lm_tokenizer,
                                              tokenized_test_dataset,
                                              raw_predictions.predictions)
