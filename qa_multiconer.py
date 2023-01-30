@@ -528,7 +528,7 @@ def test_model(dataset, lm_tokenizer, args):
 def main():
     args = parse_arguments()
 
-    dataset = utils.load_multiconer_dataset(args.dataset_path, args.lang)
+    dataset = utils.load_multiconer_dataset(args.dataset_path, args.lang, args.mode)
 
     lm_tokenizer = AutoTokenizer.from_pretrained(args.model)
 

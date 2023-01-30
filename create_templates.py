@@ -9,13 +9,13 @@ from utils import NES
 from tqdm import tqdm
 
 PATH = "./MultiCoNER_2_data/train_dev_test"
-LANG = ["en"]
+LANG = ["multi"]
 #LANG = ["bn","de","en","es","fa","fr","hi","it","pt","sv","uk","zh"]
 #MODE = ["train", "dev"]
 MODE = ["test"]
-os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
-MASKED_LM = "google/bigbird-roberta-base"
-#MASKED_LM = "xlm-roberta-base"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+#MASKED_LM = "google/bigbird-roberta-base"
+MASKED_LM = "xlm-roberta-base"
 
 BASE_TEMPLATE = "[MASK] is the [ENTITY] ?"
 
@@ -69,8 +69,8 @@ def create_templates():
     if automatic:
         print(f"Devices: {torch.cuda.device_count()}")
         tokenizer = AutoTokenizer.from_pretrained(MASKED_LM)
-        model = AutoModelForMaskedLM.from_pretrained(MASKED_LM, attention_type="original_full")
-        #model = AutoModelForMaskedLM.from_pretrained(MASKED_LM)
+        #model = AutoModelForMaskedLM.from_pretrained(MASKED_LM, attention_type="original_full")
+        model = AutoModelForMaskedLM.from_pretrained(MASKED_LM)
 
         device = torch.device("cuda")
         model.to(device)
