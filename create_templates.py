@@ -9,10 +9,10 @@ from utils import NES
 from tqdm import tqdm
 
 PATH = "./MultiCoNER_2_data/train_dev_test"
-LANG = ["multi"]
+LANG = ["sv", "pt"]
 #LANG = ["bn","de","en","es","fa","fr","hi","it","pt","sv","uk","zh"]
-#MODE = ["train", "dev"]
-MODE = ["test"]
+MODE = ["train", "dev", "test"]
+#MODE = ["test"]
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 #MASKED_LM = "google/bigbird-roberta-base"
 MASKED_LM = "xlm-roberta-base"
@@ -213,6 +213,7 @@ def main():
     """
     if complete_dataset:
         for _lang, _mode in combinations:
+            print(f"processing: {_lang}-{_mode}")
             input_file = os.path.join(PATH, _lang + '-' + _mode + '.conll')
             with open(input_file, 'r') as f:
                 lines = f.readlines()
