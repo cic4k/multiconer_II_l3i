@@ -72,7 +72,7 @@ def parse_arguments():
 
     parser.add_argument("-r", "--mode",
                         dest="mode",
-                        choices=["train", "test", "all"],
+                        choices=["train", "test", "all", "testdev"],
                         default="all",
                         type=str,
                         help="""Operation mode""")
@@ -429,9 +429,17 @@ def train_model(dataset, lm_tokenizer, args):
     if not os.path.isdir("./models"):
         os.mkdir("./models")
 
-    tokenized_dataset = dataset.map(prepare_train_features,
+    tokenized_dataset_train = dataset["train"].map(prepare_train_features,
                                     batched=True,
                                     remove_columns=dataset["train"].column_names,
+                                    fn_kwargs={"lm_tokenizer": lm_tokenizer,
+                                               "max_length": args.max_length,
+                                               "doc_stride": args.doc_stride}
+                                    )
+
+    tokenized_dataset_development = dataset["development"].map(prepare_train_features,
+                                    batched=True,
+                                    remove_columns=dataset["development"].column_names,
                                     fn_kwargs={"lm_tokenizer": lm_tokenizer,
                                                "max_length": args.max_length,
                                                "doc_stride": args.doc_stride}
@@ -463,8 +471,8 @@ def train_model(dataset, lm_tokenizer, args):
     trainer = Trainer(
         model,
         train_args,
-        train_dataset=tokenized_dataset["train"],
-        eval_dataset=tokenized_dataset["development"],
+        train_dataset=tokenized_dataset_train,
+        eval_dataset=tokenized_dataset_development,
         data_collator=data_collator,
         tokenizer=lm_tokenizer,
 
@@ -528,7 +536,7 @@ def test_model(dataset, lm_tokenizer, args):
 def main():
     args = parse_arguments()
 
-    dataset = utils.load_multiconer_dataset(args.dataset_path, args.lang)
+    dataset = utils.load_multiconer_dataset(args.dataset_path, args.lang, args.mode)
 
     lm_tokenizer = AutoTokenizer.from_pretrained(args.model)
 
@@ -538,8 +546,9 @@ def main():
         test_model(dataset, lm_tokenizer, args)
     elif args.mode == "train":
         train_model(dataset, lm_tokenizer, args)
-    elif args.mode == "test":
+    else:
         test_model(dataset, lm_tokenizer, args)
+
 
 if __name__ == '__main__':
     """

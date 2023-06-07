@@ -52,16 +52,31 @@ NES = {
     "Disease": ["disease", "what"]
 }
 
-def load_multiconer_dataset(dataset_path, lang):
+def load_multiconer_dataset(dataset_path, lang, mode):
 
-    file_path = os.path.join(dataset_path, f"{lang}-train_comp.tsv")
-    dataset_train = Dataset.from_pandas(pandas.read_csv(file_path, sep="\t", header=0))
+    dataset_train = dataset_dev = dataset_test = None
 
-    file_path = os.path.join(dataset_path, f"{lang}-dev_comp.tsv")
-    dataset_dev = Dataset.from_pandas(pandas.read_csv(file_path, sep="\t", header=0))
+    if mode == "all":
+        file_path = os.path.join(dataset_path, f"{lang}-train_comp.tsv")
+        dataset_train = Dataset.from_pandas(pandas.read_csv(file_path, sep="\t", header=0, keep_default_na=False))
 
-    file_path = os.path.join(dataset_path, f"{lang}-test_comp.tsv")
-    dataset_test = Dataset.from_pandas(pandas.read_csv(file_path, sep="\t", header=0))
+        file_path = os.path.join(dataset_path, f"{lang}-dev_comp.tsv")
+        dataset_dev = Dataset.from_pandas(pandas.read_csv(file_path, sep="\t", header=0, keep_default_na=False))
+
+        file_path = os.path.join(dataset_path, f"{lang}-test_comp.tsv")
+        dataset_test = Dataset.from_pandas(pandas.read_csv(file_path, sep="\t", header=0, keep_default_na=False))
+    elif mode == "train":
+        file_path = os.path.join(dataset_path, f"{lang}-train_comp.tsv")
+        dataset_train = Dataset.from_pandas(pandas.read_csv(file_path, sep="\t", header=0, keep_default_na=False))
+
+        file_path = os.path.join(dataset_path, f"{lang}-dev_comp.tsv")
+        dataset_dev = Dataset.from_pandas(pandas.read_csv(file_path, sep="\t", header=0, keep_default_na=False))
+    elif mode == "testdev":
+        file_path = os.path.join(dataset_path, f"{lang}-dev_comp.tsv")
+        dataset_test = Dataset.from_pandas(pandas.read_csv(file_path, sep="\t", header=0, keep_default_na=False))
+    else:
+        file_path = os.path.join(dataset_path, f"{lang}-test_comp.tsv")
+        dataset_test = Dataset.from_pandas(pandas.read_csv(file_path, sep="\t", header=0, keep_default_na=False))
 
     return DatasetDict({
         "train": dataset_train,

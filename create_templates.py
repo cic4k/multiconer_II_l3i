@@ -9,13 +9,13 @@ from utils import NES
 from tqdm import tqdm
 
 PATH = "./MultiCoNER_2_data/train_dev_test"
-LANG = ["en"]
+LANG = ["sv", "pt"]
 #LANG = ["bn","de","en","es","fa","fr","hi","it","pt","sv","uk","zh"]
-#MODE = ["train", "dev"]
-MODE = ["test"]
-os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
-MASKED_LM = "google/bigbird-roberta-base"
-#MASKED_LM = "xlm-roberta-base"
+MODE = ["train", "dev", "test"]
+#MODE = ["test"]
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+#MASKED_LM = "google/bigbird-roberta-base"
+MASKED_LM = "xlm-roberta-base"
 
 BASE_TEMPLATE = "[MASK] is the [ENTITY] ?"
 
@@ -69,8 +69,8 @@ def create_templates():
     if automatic:
         print(f"Devices: {torch.cuda.device_count()}")
         tokenizer = AutoTokenizer.from_pretrained(MASKED_LM)
-        model = AutoModelForMaskedLM.from_pretrained(MASKED_LM, attention_type="original_full")
-        #model = AutoModelForMaskedLM.from_pretrained(MASKED_LM)
+        #model = AutoModelForMaskedLM.from_pretrained(MASKED_LM, attention_type="original_full")
+        model = AutoModelForMaskedLM.from_pretrained(MASKED_LM)
 
         device = torch.device("cuda")
         model.to(device)
@@ -213,6 +213,7 @@ def main():
     """
     if complete_dataset:
         for _lang, _mode in combinations:
+            print(f"processing: {_lang}-{_mode}")
             input_file = os.path.join(PATH, _lang + '-' + _mode + '.conll')
             with open(input_file, 'r') as f:
                 lines = f.readlines()
